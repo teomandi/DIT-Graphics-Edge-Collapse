@@ -1,0 +1,7 @@
+obj/
+.vscode/
+
+*.obj
+*.o
+
+a.out
