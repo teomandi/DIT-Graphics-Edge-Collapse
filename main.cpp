@@ -11,7 +11,11 @@ int main() {
     string objfile = "obj/myObj.obj";
     // string objfile = "obj/teapot.obj";
 
-    ObjectHandler* oHandler= new ObjectHandler(objfile);
+    ObjectHandler* oHandler= new ObjectHandler();
+    oHandler->loadObject(objfile);
+    oHandler->extractEdges();
     oHandler->printSummary();
+    // oHandler->storeObject("obj/new.obj");
+
     return 0;
 }

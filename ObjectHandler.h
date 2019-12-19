@@ -1,6 +1,7 @@
 #include <iostream>
 #include <list> 
 #include <map> 
+#include <set>
 
 using namespace std;
 
@@ -9,40 +10,45 @@ using namespace std;
 
 class Vertice{
     public:
-        double x;
-        double y;
-        double z;
+        float x;
+        float y;
+        float z;
 
-        Vertice(int xi, int yi, int zi);
+        Vertice(float xi, float yi, float zi);
+        void printVertice();
 };
 
 class Edge{
     public:
-        Vertice v_start;
-        Vertice v_end;
+        int vStart;
+        int vEnd;
+        Edge(int x, int y);
+        void printEdge();
 };
 
 class Face{
     public:
-        Vertice v1;
-        Vertice v2;
-        Vertice v3;
+        int v1;
+        int v2;
+        int v3;
+        Face(int p1, int p2, int p3);
 };
 
 class ObjectHandler{
         list<Face> triangles;
         map<int, Vertice*> vertices;
+        set<Edge> edges;
     
     public:
-        int test;
-        bool status;
-
+        string filename;
         int verticesSize;
         int facesSize;
 
-
-        ObjectHandler(string filename);
+        bool loadObject(string filename);
+        bool storeObject(string filepath);
         void printSummary();
+
+        void extractEdges();
 };
 
 
