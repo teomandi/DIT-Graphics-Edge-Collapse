@@ -1,5 +1,6 @@
 #include <fstream> //to open and read file
 #include <iostream>
+#include <math.h>
 
 #include "ObjectHandler.h"
 
@@ -22,3 +23,9 @@ int readFile(string path){
     return 0;
 }
 
+
+double VerticePower(Vertice *v){
+    //Eucledean value from (0, 0, 0)
+    float sum = pow(v->x, 2) + pow(v->y, 2) + pow(v->z, 2);
+    return sqrt(sum);
+}
