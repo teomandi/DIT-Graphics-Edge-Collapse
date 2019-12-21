@@ -11,11 +11,12 @@ using namespace std;
 
 class ObjectHandler{
         list<Face> triangles;
-        list<Edge> edges;
         map<int, Vertice> vertices;
     
     public:
         string filename;
+        list<Edge> edges;
+
         
         bool loadObject(string filename);
         bool storeObject(string filepath);
@@ -23,6 +24,8 @@ class ObjectHandler{
 
         void extractEdges();
         bool edgeExists(Edge *e);
+        
+        list<Face*> getHotArea(Edge *e);
 };
 
 

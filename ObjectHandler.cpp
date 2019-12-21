@@ -16,6 +16,7 @@ bool ObjectHandler::loadObject(string filepath){
     }
 
     filename = filepath;
+    int index = 1;
     char line[255];
     while(in) {
         in.getline(line, 255);
@@ -32,7 +33,8 @@ bool ObjectHandler::loadObject(string filepath){
                     objpart = strtok(NULL, " ");
                     zi = atof(objpart);
                     Vertice v(xi, yi, zi);
-                    vertices.insert(make_pair(verticesSize, Vertice(xi, yi, zi)));
+                    vertices.insert(make_pair(index, Vertice(xi, yi, zi)));
+                    index ++;
                 }
                 else if(strcmp(objpart, "f") == 0){                    
                     int pointer;
@@ -49,7 +51,6 @@ bool ObjectHandler::loadObject(string filepath){
                     objpart = strtok(NULL, " ");
                     pointer = atoi(objpart);
                     v3 = &vertices.find(pointer)->second;
-                    v3->printVertice();
 
                     triangles.push_back(Face(v1, v2, v3));
                 }
@@ -151,4 +152,31 @@ void ObjectHandler::printSummary(){
         eit->vEnd->printVertice();
         cout << endl << "----" << endl;
     }
+}
+
+list<Face*> ObjectHandler::getHotArea(Edge *e){
+    list<Face*> hotFaces;
+
+    list<Face>::iterator fit;
+    for (fit = triangles.begin(); fit != triangles.end(); ++fit){
+        if(fit->containsVertice(e->vStart) || fit->containsVertice(e->vEnd))
+            hotFaces.push_back(&(*fit));
+    }
+    cout << "~~~> " <<  hotFaces.size() << endl;
+    // list<Face*>::iterator it;
+    // for (it = hotFaces.begin(); it != hotFaces.end(); ++it){
+    //     cout << "Vertice: "<< endl;
+    //     (*it)->v1->printVertice();
+    //     cout << endl;
+    //     (*it)->v2->printVertice();
+    //     cout << endl;
+    //     (*it)->v3->printVertice();
+    //     cout << endl;
+    //     cout << "----" << endl;
+    // }
+
+    return hotFaces;
+
+
+
 }

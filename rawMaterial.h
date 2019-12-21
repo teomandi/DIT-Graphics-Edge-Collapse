@@ -36,6 +36,7 @@ class Face{
         Vertice *v3;
 
         Face(Vertice *p1, Vertice *p2, Vertice *p3);
+        bool containsVertice(Vertice *v);
 };
 
 

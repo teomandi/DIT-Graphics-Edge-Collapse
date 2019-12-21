@@ -25,6 +25,16 @@ Face::Face(Vertice *p1, Vertice *p2, Vertice *p3){
     v3 = p3;
 }
 
+bool Face::containsVertice(Vertice *v){
+    if(v1->equalVertice(v)
+     || v2->equalVertice(v)
+     || v3->equalVertice(v)
+    )
+        return true;
+    else
+        return false;
+}
+
 
 //~~EDGES~~
 Edge::Edge(Vertice *x, Vertice *y){
@@ -35,9 +45,8 @@ Edge::Edge(Vertice *x, Vertice *y){
 }
 
 void Edge::printEdge(){
-   cout << "not implemented yet." << endl;
+//    cout << "not implemented yet." << endl;
+    vStart->printVertice();
+    cout << "----";
+    vEnd->printVertice();
 }
-
-
-
-
