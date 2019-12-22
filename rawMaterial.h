@@ -42,8 +42,7 @@ class Face{
         bool equalFace(Face *f);
 
         double maxDistanceFromVertice(Vertice *v);
-
 };
 
-
+void clean(list<Face*> target);
 #endif

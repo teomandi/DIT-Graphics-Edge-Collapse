@@ -1,8 +1,5 @@
 #include <fstream> //to open and read file
 #include <iostream>
-#include <math.h>
-
-#include "ObjectHandler.h"
 
 
 using namespace std;
@@ -38,11 +35,4 @@ double maxDouble(double d1, double d2, double d3){
     }
 }
 
-void clean(list<Face*> target){
-    list<Face*>::iterator fit;
-    for (fit = target.begin(); fit != target.end(); ++fit){
-        delete((*fit)->v1);
-        delete((*fit)->v2);
-        delete((*fit)->v3);
-    }
-}        
+      

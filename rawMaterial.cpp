@@ -85,5 +85,11 @@ bool Edge::equalEdge(Edge *e){
         return true;
     else
         return false;
-
 }
+
+void clean(list<Face*> target){
+    list<Face*>::iterator fit;
+    for (fit = target.begin(); fit != target.end(); ++fit){
+        delete((*fit));
+    }
+}  

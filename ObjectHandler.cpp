@@ -160,7 +160,7 @@ void ObjectHandler::printSummary(){
 }
 
 void ObjectHandler::pintSimpleSummary(){
-    cout<< "~~~ Siple summary" << endl;
+    cout<< "~~~ Simple summary" << endl;
     cout << "Vertices: " << vertices.size() << endl;
     cout << "Faces: " << triangles.size() << endl;
     cout << "Edges: " << edges.size() << endl;
