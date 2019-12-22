@@ -23,9 +23,26 @@ int readFile(string path){
     return 0;
 }
 
-
-double VerticePower(Vertice *v){
-    //Eucledean value from (0, 0, 0)
-    float sum = pow(v->x, 2) + pow(v->y, 2) + pow(v->z, 2);
-    return sqrt(sum);
+double maxDouble(double d1, double d2, double d3){
+     if( d1 > d2 ){
+        if(d1 > d3)
+            return d1;
+        else
+            return d3; 
+    }
+    else{
+        if(d2 > d3)
+            return d2;
+        else
+            return d3;
+    }
 }
+
+void clean(list<Face*> target){
+    list<Face*>::iterator fit;
+    for (fit = target.begin(); fit != target.end(); ++fit){
+        delete((*fit)->v1);
+        delete((*fit)->v2);
+        delete((*fit)->v3);
+    }
+}        

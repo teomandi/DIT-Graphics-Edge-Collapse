@@ -19,6 +19,7 @@ class Vertice{
         Vertice(float xi, float yi, float zi);
         void printVertice();
         bool equalVertice(Vertice *v);
+        double distanceVertice(Vertice *v);
 };
 
 class Edge{
@@ -27,6 +28,7 @@ class Edge{
         Vertice *vEnd;
         Edge(Vertice *x, Vertice *y);
         void printEdge();
+        bool equalEdge(Edge *e);
 };
 
 class Face{
@@ -37,6 +39,10 @@ class Face{
 
         Face(Vertice *p1, Vertice *p2, Vertice *p3);
         bool containsVertice(Vertice *v);
+        bool equalFace(Face *f);
+
+        double maxDistanceFromVertice(Vertice *v);
+
 };
 
 

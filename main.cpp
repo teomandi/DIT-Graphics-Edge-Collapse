@@ -17,24 +17,24 @@ int main() {
     ObjectHandler* oHandler= new ObjectHandler();
     oHandler->loadObject(objfile);
     oHandler->extractEdges();
-    cout <<"Preproccess: Done"<< endl;
-    list<Edge>::iterator eit;
-    int i =0;
-    for (eit = oHandler->edges.begin(); eit != oHandler->edges.end(); ++eit){
-        i++;
-        if (i == 15){
-            eit->printEdge();
-            list<Face*> hotArea = oHandler->getHotArea(&(*eit));
-            cout << endl;
-            break;
-        }
+    // cout <<"Preproccess: Done"<< endl;
+    oHandler->pintSimpleSummary();
 
-    }
+    list<Edge>::iterator eit = oHandler->edges.begin();
+    advance(eit, 14); //14 from 0 is the wanted one.
+    eit->printEdge();
+    
+    list<Face*> HA_before = oHandler->getHotArea(&(*eit));
+    Vertice *v = oHandler->EdgeCollapse(&(*eit));
+    list<Face*> HA_after = oHandler->getHotArea(v);
+
+    cout << HA_before.size() << " --- " << HA_after.size() << endl;
+    cout << "HD: " << oHandler->HausdorffDistance(HA_before, HA_after) << endl;
 
 
 
-    // oHandler->printSummary();
-    // oHandler->storeObject("obj/new.obj");
+
+    delete(oHandler);
     cout << "Bye" << endl;
     return 0;
 }

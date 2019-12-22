@@ -3,6 +3,8 @@
 #include <set>
 #include <map>
 #include "rawMaterial.h"
+#include "helper.h"
+
 
 using namespace std;
 
@@ -11,21 +13,29 @@ using namespace std;
 
 class ObjectHandler{
         list<Face> triangles;
-        map<int, Vertice> vertices;
     
     public:
         string filename;
         list<Edge> edges;
+        map<int, Vertice> vertices;
 
         
         bool loadObject(string filename);
         bool storeObject(string filepath);
-        void printSummary();
-
-        void extractEdges();
         bool edgeExists(Edge *e);
+
+        void printSummary();
+        void pintSimpleSummary();
+        void extractEdges();
         
         list<Face*> getHotArea(Edge *e);
+        list<Face*> getHotArea(Vertice *v);
+        list<Face*> getPeripherialFaces(Edge *e);
+        
+        Vertice* EdgeCollapse(Edge *e);
+        ObjectHandler* cloneObjHandler(ObjectHandler *oh);
+
+        double HausdorffDistance(list<Face*> F1, list<Face*> F2);
 };
 
 

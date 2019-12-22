@@ -14,7 +14,6 @@ bool ObjectHandler::loadObject(string filepath){
         cout << "Cannot open input file.\n";
         return false;
     }
-
     filename = filepath;
     int index = 1;
     char line[255];
@@ -68,7 +67,7 @@ bool ObjectHandler::loadObject(string filepath){
 bool ObjectHandler::storeObject(string filepath){
     ofstream outfile;
   	outfile.open(filepath);
-
+    cout <<"-----"<<endl;
     map<int, Vertice>::iterator vit;
     int current_index = 1;
 	for(vit = vertices.begin(); vit != vertices.end(); ++vit){
@@ -81,9 +80,12 @@ bool ObjectHandler::storeObject(string filepath){
             outfile << line;
             vit->second.index = current_index;
             current_index++;
+
+            vit->second.printVertice();
+            cout <<"?" <<endl;
         }
 	}
-
+    cout << "~~~~" << endl;
     list<Face>::iterator fit;
     for (fit = triangles.begin(); fit != triangles.end(); ++fit){
         string line = "f " 
@@ -92,6 +94,9 @@ bool ObjectHandler::storeObject(string filepath){
             + " " + to_string(fit->v3->index)
             + "\n";
         outfile << line;
+        
+        fit->v1->printVertice();
+        cout << " ?? " <<to_string(fit->v1->energy) <<endl;
     }
 	outfile.close();
     return true;
@@ -154,15 +159,165 @@ void ObjectHandler::printSummary(){
     }
 }
 
+void ObjectHandler::pintSimpleSummary(){
+    cout<< "~~~ Siple summary" << endl;
+    cout << "Vertices: " << vertices.size() << endl;
+    cout << "Faces: " << triangles.size() << endl;
+    cout << "Edges: " << edges.size() << endl;
+    cout << "~~~~~" << endl;
+
+}
+
+
 list<Face*> ObjectHandler::getHotArea(Edge *e){
     list<Face*> hotFaces;
 
     list<Face>::iterator fit;
     for (fit = triangles.begin(); fit != triangles.end(); ++fit){
         if(fit->containsVertice(e->vStart) || fit->containsVertice(e->vEnd))
-            hotFaces.push_back(&(*fit));
+            hotFaces.push_back(new Face(fit->v1, fit->v2, fit->v3));
     }
-    cout << "~~~> " <<  hotFaces.size() << endl;
+    //**
+    return hotFaces;
+}
+
+list<Face*> ObjectHandler::getHotArea(Vertice *v){
+    list<Face*> hotFaces;
+    list<Face>::iterator fit;
+    for (fit = triangles.begin(); fit != triangles.end(); ++fit){
+        if(fit->containsVertice(v))
+            hotFaces.push_back(new Face(fit->v1, fit->v2, fit->v3));
+    }
+    return hotFaces;
+}
+
+
+list <Face*> ObjectHandler::getPeripherialFaces(Edge *e){
+    list<Face*> peripherial;
+    list<Face>::iterator fit;
+    for (fit = triangles.begin(); fit != triangles.end(); ++fit){
+        if(fit->containsVertice(e->vStart) && fit->containsVertice(e->vEnd))
+            peripherial.push_back(&(*fit));
+    }
+    if(peripherial.size() > 2)
+        cout << "Something gone wrong. Size: " << peripherial.size() << endl;
+
+    return peripherial;
+}
+
+//not correct cause it copys the pointers so there are no new. 
+//can be fixed with for loops
+ObjectHandler* ObjectHandler::cloneObjHandler(ObjectHandler *oh){
+    ObjectHandler *newOH = new ObjectHandler();
+    
+    newOH->triangles.assign(oh->triangles.begin(), oh->triangles.end());
+    newOH->edges.assign(oh->edges.begin(), oh->edges.end());
+    newOH->vertices.insert(oh->vertices.begin(), oh->vertices.end());
+
+    cout<<"Vert: " << newOH->vertices.size() << " - " << oh->vertices.size() << endl;
+    cout<<"Faces: " << newOH->triangles.size() << " - " << oh->triangles.size() << endl;
+    cout<<"Edges: " << newOH->edges.size() << " - " << oh->edges.size() << endl;
+
+    newOH->vertices.find(1)->second.index = 99;
+    cout << newOH->vertices.find(1)->second.index <<endl;
+    cout << oh->vertices.find(1)->second.index <<endl;
+
+
+    return newOH;
+    
+}
+
+Vertice* ObjectHandler::EdgeCollapse(Edge *e){
+    //get neigbour faces of the edge (2)
+    list<Face*> neighboorFaces = getPeripherialFaces(e);
+    
+    //calculate the new point
+    float nx, ny, nz;
+    nx = (e->vStart->x + e->vEnd->x)/2;
+    ny = (e->vStart->y + e->vEnd->y)/2;
+    nz = (e->vStart->z + e->vEnd->z)/2;
+
+
+    vertices.insert(make_pair(vertices.size()+1, Vertice(nx, ny, nz)));
+    vertices.find(vertices.size())->second.printVertice();
+
+    //mark the old points as inactice
+    e->vStart->energy = false;
+    e->vEnd->energy = false;
+
+    //remover neighbour faces from the triangles list
+    cout << endl;
+    list<Face*>::iterator pf_fit;
+    for (pf_fit = neighboorFaces.begin(); pf_fit != neighboorFaces.end(); ++pf_fit){
+        list<Face>::iterator fit;
+        for (fit = triangles.begin(); fit != triangles.end(); ++fit){
+            if( fit->equalFace(*pf_fit)){
+                break;
+            }
+        }
+        triangles.erase(fit);
+    }
+
+    //remove the edge from the list
+    list<Edge>::iterator eit;
+    for (eit = edges.begin(); eit != edges.end(); ++eit){
+        if(eit->equalEdge(e)){
+            edges.erase(eit);
+            break;
+        }
+    }
+
+    //replace in each face that contains the removed points the new one
+    list<Face>::iterator fit;
+    int i = 12;
+    for (fit = triangles.begin(); fit != triangles.end(); ++fit){
+        if(fit->v1->equalVertice(e->vStart) || fit->v1->equalVertice(e->vEnd)){
+            fit->v1 = &vertices.find(vertices.size())->second;
+            cout << "1found triangle " << i << endl;
+            fit->v1->printVertice();
+            cout << endl;
+        }
+        else if (fit->v2->equalVertice(e->vStart) || fit->v2->equalVertice(e->vEnd)){
+            fit->v2 = &vertices.find(vertices.size())->second;
+            cout << "2found triangle " << i << endl;
+        }
+        else if (fit->v3->equalVertice(e->vStart) || fit->v3->equalVertice(e->vEnd)){
+            fit->v3 = &vertices.find(vertices.size())->second;
+            cout << "3found triangle " << i << endl;
+        }
+        i++;
+    }
+    return &vertices.find(vertices.size())->second;
+}
+
+
+double ObjectHandler::HausdorffDistance(list<Face*> F1, list<Face*> F2){
+    double hDist = 0;
+    list<Face*>::iterator f1_it;
+    for (f1_it = F1.begin(); f1_it != F1.end(); ++f1_it){
+        list<Face*>::iterator f2_it;
+        double localMax=0;
+        for (f2_it = F2.begin(); f2_it != F2.end(); ++f2_it){
+            double d1, d2, d3, dmax;
+            d1  = (*f2_it)->maxDistanceFromVertice((*f1_it)->v1);
+            d2  = (*f2_it)->maxDistanceFromVertice((*f1_it)->v2);
+            d3  = (*f2_it)->maxDistanceFromVertice((*f1_it)->v3);
+            
+            dmax = maxDouble(d1, d2, d3);
+            if (localMax < dmax)
+                localMax = dmax;
+        }
+        if (hDist < localMax)
+            hDist = localMax;
+    }
+    return hDist;
+}
+
+
+
+
+
+    // cout << triangles.size() << " ~~~> " <<  hotFaces.size() << endl;
     // list<Face*>::iterator it;
     // for (it = hotFaces.begin(); it != hotFaces.end(); ++it){
     //     cout << "Vertice: "<< endl;
@@ -174,9 +329,3 @@ list<Face*> ObjectHandler::getHotArea(Edge *e){
     //     cout << endl;
     //     cout << "----" << endl;
     // }
-
-    return hotFaces;
-
-
-
-}
