@@ -296,3 +296,45 @@ double ObjectHandler::HausdorffDistance(list<Face*> F1, list<Face*> F2){
     }
     return hDist;
 }
+
+
+/*
+    Gets an edge, finds hot area, collpases is, and counts the worth of the collapse
+*/
+
+double ObjectHandler::collapseValue(Edge *e){
+    list<Face*> oldSceme = getHotArea(e);
+    list<Face*> newSceme;
+
+    float nx, ny, nz;
+    nx = (e->vStart->x + e->vEnd->x)/2;
+    ny = (e->vStart->y + e->vEnd->y)/2;
+    nz = (e->vStart->z + e->vEnd->z)/2;
+    Vertice *vn = new Vertice(nx,ny, nz);
+
+    list<Face*>::iterator fit;
+    for (fit=oldSceme.begin(); fit!=oldSceme.end(); fit++){
+        if((*fit)->containsVertice(e->vStart) && (*fit)->containsVertice(e->vEnd))
+            continue; //ingore them
+        
+        Face *nf;
+        if((*fit)->v1->equalVertice(e->vStart) || (*fit)->v1->equalVertice(e->vEnd))
+            nf = new Face(vn, (*fit)->v2, (*fit)->v3);
+        if((*fit)->v2->equalVertice(e->vStart) || (*fit)->v2->equalVertice(e->vEnd))
+            nf = new Face((*fit)->v1, vn, (*fit)->v3);
+        if((*fit)->v3->equalVertice(e->vStart) || (*fit)->v3->equalVertice(e->vEnd))
+            nf = new Face((*fit)->v1, (*fit)->v2, vn);
+
+        newSceme.push_back(nf);
+    } 
+
+    double distance = HausdorffDistance(oldSceme, newSceme);
+    // cout << "old: " << oldSceme.size() << " new:: " << newSceme.size() << " Distance :: " << distance << endl;
+
+
+    cleanF(oldSceme);
+    cleanF(newSceme);
+    delete(vn);
+
+    return distance;
+}

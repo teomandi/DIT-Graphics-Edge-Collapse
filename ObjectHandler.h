@@ -33,6 +33,10 @@ class ObjectHandler{
         list<Face*> getPeripherialFaces(Edge *e);
         
         Vertice* EdgeCollapse(Edge *e);
+        double collapseValue(Edge *e);
+ 
+
+
         ObjectHandler* cloneObjHandler(ObjectHandler *oh);
 
         double HausdorffDistance(list<Face*> F1, list<Face*> F2);

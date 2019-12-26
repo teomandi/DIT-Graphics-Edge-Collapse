@@ -23,26 +23,25 @@ int main() {
     cout <<"Preproccess: Done"<< endl;
     oHandler->pintSimpleSummary();
 
-    //pick random edges and collapse
-    float compress_value = 0.5;
-    int reps = 0;
-    srand(time(NULL));
-    for(int i=0; i<oHandler->edges.size()*compress_value; i++){
-        reps++;
-        int randEdge = rand()%( oHandler->edges.size() + 1 );
-        if(randEdge >= oHandler->edges.size()){
-            cout << "WARNING too large edge: "<< randEdge << " Max: " << oHandler->edges.size() <<endl;
-            continue;
+    float compress_value = 0.1;
+    int reps = int(compress_value*oHandler->edges.size());
+    for(int i=0; i< reps; i++){
+        Edge *bestEdge;
+        double minDist = 999;
+
+        list<Edge>::iterator e;
+        for (e = oHandler->edges.begin(); e != oHandler->edges.end(); ++e){
+            double dist = oHandler->collapseValue(&(*e));
+            if (dist < minDist){
+                minDist = dist;
+                bestEdge = &(*e);
+            }
         }
-        list<Edge>::iterator eit = oHandler->edges.begin();
-        advance(eit, randEdge);
-        Vertice *v = oHandler->EdgeCollapse(&(*eit));
+        Vertice *v = oHandler->EdgeCollapse(bestEdge);
+        cout << "Collpased Dist:: " << minDist << " ITER: " << to_string(i)  <<" from "<< to_string(reps) << endl;
     }
-    cout << "Complete. Reps: " << reps << endl;
-    oHandler->storeObject("obj/pumpkin_tall_x5.obj");
     oHandler->pintSimpleSummary();
-
-
+    oHandler->storeObject("obj/pumpkin_tall_5ktest.obj");
     delete(oHandler);
     cout << "Bye" << endl;
     return 0;
@@ -61,5 +60,25 @@ int main() {
 
     // cout << HA_before.size() << " --- " << HA_after.size() << endl;
     // cout << "HD: " << oHandler->HausdorffDistance(HA_before, HA_after) << endl;
-    // clean(HA_after);
-    // clean(HA_before);
+    // cleanF(HA_after);
+    // cleanF(HA_before);
+
+
+    //pick random edges and collapse
+    // float compress_value = 0.5;
+    // int reps = 0;
+    // srand(time(NULL));
+    // for(int i=0; i<oHandler->edges.size()*compress_value; i++){
+    //     reps++;
+    //     int randEdge = rand()%( oHandler->edges.size() + 1 );
+    //     if(randEdge >= oHandler->edges.size()){
+    //         cout << "WARNING too large edge: "<< randEdge << " Max: " << oHandler->edges.size() <<endl;
+    //         continue;
+    //     }
+    //     list<Edge>::iterator eit = oHandler->edges.begin();
+    //     advance(eit, randEdge);
+    //     Vertice *v = oHandler->EdgeCollapse(&(*eit));
+    // }
+    // cout << "Complete. Reps: " << reps << endl;
+    // oHandler->storeObject("obj/pumpkin_tall_x5.obj");
+    // oHandler->pintSimpleSummary();
