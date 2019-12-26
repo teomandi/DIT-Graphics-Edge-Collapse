@@ -54,7 +54,7 @@ bool ObjectHandler::loadObject(string filepath){
                     triangles.push_back(Face(v1, v2, v3));
                 }
                 else{
-                    cout << "Warning:: Unknown value in obj.";
+                    cout << "Warning!!!:: Unknown value in obj:: " << objpart << endl;
                 }
                 objpart = strtok(NULL, " ");
             }
@@ -67,7 +67,6 @@ bool ObjectHandler::loadObject(string filepath){
 bool ObjectHandler::storeObject(string filepath){
     ofstream outfile;
   	outfile.open(filepath);
-    cout <<"-----"<<endl;
     map<int, Vertice>::iterator vit;
     int current_index = 1;
 	for(vit = vertices.begin(); vit != vertices.end(); ++vit){
@@ -80,12 +79,8 @@ bool ObjectHandler::storeObject(string filepath){
             outfile << line;
             vit->second.index = current_index;
             current_index++;
-
-            vit->second.printVertice();
-            cout <<"?" <<endl;
         }
 	}
-    cout << "~~~~" << endl;
     list<Face>::iterator fit;
     for (fit = triangles.begin(); fit != triangles.end(); ++fit){
         string line = "f " 
@@ -95,8 +90,6 @@ bool ObjectHandler::storeObject(string filepath){
             + "\n";
         outfile << line;
         
-        fit->v1->printVertice();
-        cout << " ?? " <<to_string(fit->v1->energy) <<endl;
     }
 	outfile.close();
     return true;
@@ -236,17 +229,13 @@ Vertice* ObjectHandler::EdgeCollapse(Edge *e){
     nx = (e->vStart->x + e->vEnd->x)/2;
     ny = (e->vStart->y + e->vEnd->y)/2;
     nz = (e->vStart->z + e->vEnd->z)/2;
-
-
     vertices.insert(make_pair(vertices.size()+1, Vertice(nx, ny, nz)));
-    vertices.find(vertices.size())->second.printVertice();
 
     //mark the old points as inactice
     e->vStart->energy = false;
     e->vEnd->energy = false;
 
     //remover neighbour faces from the triangles list
-    cout << endl;
     list<Face*>::iterator pf_fit;
     for (pf_fit = neighboorFaces.begin(); pf_fit != neighboorFaces.end(); ++pf_fit){
         list<Face>::iterator fit;
@@ -273,17 +262,12 @@ Vertice* ObjectHandler::EdgeCollapse(Edge *e){
     for (fit = triangles.begin(); fit != triangles.end(); ++fit){
         if(fit->v1->equalVertice(e->vStart) || fit->v1->equalVertice(e->vEnd)){
             fit->v1 = &vertices.find(vertices.size())->second;
-            cout << "1found triangle " << i << endl;
-            fit->v1->printVertice();
-            cout << endl;
         }
         else if (fit->v2->equalVertice(e->vStart) || fit->v2->equalVertice(e->vEnd)){
             fit->v2 = &vertices.find(vertices.size())->second;
-            cout << "2found triangle " << i << endl;
         }
         else if (fit->v3->equalVertice(e->vStart) || fit->v3->equalVertice(e->vEnd)){
             fit->v3 = &vertices.find(vertices.size())->second;
-            cout << "3found triangle " << i << endl;
         }
         i++;
     }
@@ -312,20 +296,3 @@ double ObjectHandler::HausdorffDistance(list<Face*> F1, list<Face*> F2){
     }
     return hDist;
 }
-
-
-
-
-
-    // cout << triangles.size() << " ~~~> " <<  hotFaces.size() << endl;
-    // list<Face*>::iterator it;
-    // for (it = hotFaces.begin(); it != hotFaces.end(); ++it){
-    //     cout << "Vertice: "<< endl;
-    //     (*it)->v1->printVertice();
-    //     cout << endl;
-    //     (*it)->v2->printVertice();
-    //     cout << endl;
-    //     (*it)->v3->printVertice();
-    //     cout << endl;
-    //     cout << "----" << endl;
-    // }
