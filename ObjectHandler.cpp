@@ -247,12 +247,22 @@ Vertice* ObjectHandler::EdgeCollapse(Edge *e){
         triangles.erase(fit);
     }
 
-    //remove the edge from the list
     list<Edge>::iterator eit;
+    //remove the edge from the list
     for (eit = edges.begin(); eit != edges.end(); ++eit){
         if(eit->equalEdge(e)){
             edges.erase(eit);
             break;
+        }
+    }
+
+    //update all the edges
+    for (eit = edges.begin(); eit != edges.end(); ++eit){
+        if(eit->vStart->equalVertice(e->vStart)){
+            eit->vStart = &vertices.find(vertices.size())->second;
+        }
+        if(eit->vEnd->equalVertice(e->vEnd)){
+            eit->vEnd = &vertices.find(vertices.size())->second;
         }
     }
 
@@ -286,14 +296,18 @@ double ObjectHandler::HausdorffDistance(list<Face*> F1, list<Face*> F2){
             d1  = (*f2_it)->maxDistanceFromVertice((*f1_it)->v1);
             d2  = (*f2_it)->maxDistanceFromVertice((*f1_it)->v2);
             d3  = (*f2_it)->maxDistanceFromVertice((*f1_it)->v3);
-            
             dmax = maxDouble(d1, d2, d3);
             if (localMax < dmax)
                 localMax = dmax;
         }
+       
         if (hDist < localMax)
             hDist = localMax;
     }
+    // if(hDist == 0){
+    //     cout<< hDist <<"!" << F1.size() << "~~" << F2.size() << endl;
+    //     exit(1);
+    // }
     return hDist;
 }
 
@@ -314,9 +328,10 @@ double ObjectHandler::collapseValue(Edge *e){
 
     list<Face*>::iterator fit;
     for (fit=oldSceme.begin(); fit!=oldSceme.end(); fit++){
-        if((*fit)->containsVertice(e->vStart) && (*fit)->containsVertice(e->vEnd))
-            continue; //ingore them
-        
+        if((*fit)->containsVertice(e->vStart) && (*fit)->containsVertice(e->vEnd)){
+            continue; //ingore them 
+        }
+            
         Face *nf;
         if((*fit)->v1->equalVertice(e->vStart) || (*fit)->v1->equalVertice(e->vEnd))
             nf = new Face(vn, (*fit)->v2, (*fit)->v3);
@@ -335,6 +350,5 @@ double ObjectHandler::collapseValue(Edge *e){
     cleanF(oldSceme);
     cleanF(newSceme);
     delete(vn);
-
     return distance;
 }

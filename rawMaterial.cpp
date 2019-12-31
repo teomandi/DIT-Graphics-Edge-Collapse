@@ -92,4 +92,4 @@ void cleanF(list<Face*> target){
     for (fit = target.begin(); fit != target.end(); ++fit){
         delete((*fit));
     }
-}  
+}

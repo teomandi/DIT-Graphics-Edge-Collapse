@@ -1,7 +1,9 @@
 obj/
+finalObj/
 .vscode/
 
 *.obj
 *.o
 
 a.out
+edgeCollapse
