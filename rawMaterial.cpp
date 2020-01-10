@@ -51,8 +51,8 @@ bool Face::equalFace(Face *f){
         return false;
 }
 
+//returns the maximun distance from a point
 double Face::maxDistanceFromVertice(Vertice* v){
-    //returns the maximun distance from a point
     double dmax = 0;
     double dv1, dv2, dv3;
 
@@ -60,7 +60,7 @@ double Face::maxDistanceFromVertice(Vertice* v){
     dv2 = v2->distanceVertice(v);
     dv3 = v3->distanceVertice(v);
 
-   return maxDouble(dv1, dv2, dv3);
+    return maxDouble(dv1, dv2, dv3);
 }
 
 
@@ -73,7 +73,6 @@ Edge::Edge(Vertice *x, Vertice *y){
 }
 
 void Edge::printEdge(){
-//    cout << "not implemented yet." << endl;
     vStart->printVertice();
     cout << "----";
     vEnd->printVertice();
