@@ -6,7 +6,10 @@
 
 using namespace std;
 
-
+/*
+    Gets the path from a simple .obj file and extrats all the
+    vertices and faces
+*/
 bool ObjectHandler::loadObject(string filepath){
     cout << "NEW OBJ PARSER"<<endl;
     ifstream in(filepath);
@@ -64,6 +67,9 @@ bool ObjectHandler::loadObject(string filepath){
     return true;
 }
 
+/*
+    Stores the object in the class in a .obj file in the given path
+*/
 bool ObjectHandler::storeObject(string filepath){
     ofstream outfile;
   	outfile.open(filepath);
@@ -95,6 +101,9 @@ bool ObjectHandler::storeObject(string filepath){
     return true;
 }
 
+/*
+    Checks if the edge exists in the object
+*/
 bool ObjectHandler::edgeExists(Edge *e){
     //parse all the edges and check if they exists
     list<Edge>::iterator eit;
@@ -106,6 +115,10 @@ bool ObjectHandler::edgeExists(Edge *e){
     return true;
 }
 
+/*
+    Extracts all the edges from the object and stores them
+    in a set like list
+*/
 void ObjectHandler::extractEdges(){
     list<Face>::iterator fit;
     for (fit = triangles.begin(); fit != triangles.end(); ++fit){
@@ -121,6 +134,13 @@ void ObjectHandler::extractEdges(){
     }
 }
 
+/* 
+    Prints the number of:
+        -Vertices
+        -Faces
+        -Edges
+    of the currenct loaded object
+*/
 void ObjectHandler::printSummary(){
     cout << "VERTICES: " << vertices.size() << endl;
     map<int, Vertice>::iterator vit;
@@ -152,6 +172,9 @@ void ObjectHandler::printSummary(){
     }
 }
 
+/*
+    Prints a simpler summary
+*/
 void ObjectHandler::pintSimpleSummary(){
     cout<< "~~~ Simple summary" << endl;
     cout << "Vertices: " << vertices.size() << endl;
@@ -161,7 +184,11 @@ void ObjectHandler::pintSimpleSummary(){
 
 }
 
-
+/*
+    Given an edge it returns a list of faces that are connected
+    with this edge. However it creates new faces in order the original object do 
+    not get edited
+*/
 list<Face*> ObjectHandler::getHotArea(Edge *e){
     list<Face*> hotFaces;
 
@@ -170,10 +197,13 @@ list<Face*> ObjectHandler::getHotArea(Edge *e){
         if(fit->containsVertice(e->vStart) || fit->containsVertice(e->vEnd))
             hotFaces.push_back(new Face(fit->v1, fit->v2, fit->v3));
     }
-    //**
     return hotFaces;
 }
 
+/*
+    Given a vertice it returns a list of faces that are connected with
+    that vertice
+*/
 list<Face*> ObjectHandler::getHotArea(Vertice *v){
     list<Face*> hotFaces;
     list<Face>::iterator fit;
@@ -184,7 +214,10 @@ list<Face*> ObjectHandler::getHotArea(Vertice *v){
     return hotFaces;
 }
 
-
+/*
+    It returns the hot area of the edge. However the faces now are the one of
+    the current object
+*/
 list <Face*> ObjectHandler::getPeripherialFaces(Edge *e){
     list<Face*> peripherial;
     list<Face>::iterator fit;
@@ -198,8 +231,9 @@ list <Face*> ObjectHandler::getPeripherialFaces(Edge *e){
     return peripherial;
 }
 
-//not correct cause it copys the pointers so there are no new. 
-//can be fixed with for loops
+/*
+    Clones the current object. However it does not makes new faces so its not trustworthy!
+*/
 ObjectHandler* ObjectHandler::cloneObjHandler(ObjectHandler *oh){
     ObjectHandler *newOH = new ObjectHandler();
     
@@ -214,12 +248,15 @@ ObjectHandler* ObjectHandler::cloneObjHandler(ObjectHandler *oh){
     newOH->vertices.find(1)->second.index = 99;
     cout << newOH->vertices.find(1)->second.index <<endl;
     cout << oh->vertices.find(1)->second.index <<endl;
-
-
-    return newOH;
-    
+    return newOH;    
 }
 
+/*
+    Implements the edge collapse algorith. It gets an edge as input,
+    it gets all the peripherials faces, calculates the average point of the edge
+    and then sets all the faces that are connected with the edge to point at the new
+    average vertice.
+*/
 Vertice* ObjectHandler::EdgeCollapse(Edge *e){
     //get neigbour faces of the edge (2)
     list<Face*> neighboorFaces = getPeripherialFaces(e);
@@ -247,12 +284,22 @@ Vertice* ObjectHandler::EdgeCollapse(Edge *e){
         triangles.erase(fit);
     }
 
-    //remove the edge from the list
     list<Edge>::iterator eit;
+    //remove the edge from the list
     for (eit = edges.begin(); eit != edges.end(); ++eit){
         if(eit->equalEdge(e)){
             edges.erase(eit);
             break;
+        }
+    }
+
+    //update all the edges
+    for (eit = edges.begin(); eit != edges.end(); ++eit){
+        if(eit->vStart->equalVertice(e->vStart)){
+            eit->vStart = &vertices.find(vertices.size())->second;
+        }
+        if(eit->vEnd->equalVertice(e->vEnd)){
+            eit->vEnd = &vertices.find(vertices.size())->second;
         }
     }
 
@@ -274,7 +321,10 @@ Vertice* ObjectHandler::EdgeCollapse(Edge *e){
     return &vertices.find(vertices.size())->second;
 }
 
-
+/*
+    Calculates the Hausdroff Distanse between two list with faces in a 3D space.
+    Those lists are the faces that are connected before and after of an edge collapse
+*/
 double ObjectHandler::HausdorffDistance(list<Face*> F1, list<Face*> F2){
     double hDist = 0;
     list<Face*>::iterator f1_it;
@@ -286,13 +336,56 @@ double ObjectHandler::HausdorffDistance(list<Face*> F1, list<Face*> F2){
             d1  = (*f2_it)->maxDistanceFromVertice((*f1_it)->v1);
             d2  = (*f2_it)->maxDistanceFromVertice((*f1_it)->v2);
             d3  = (*f2_it)->maxDistanceFromVertice((*f1_it)->v3);
-            
             dmax = maxDouble(d1, d2, d3);
             if (localMax < dmax)
                 localMax = dmax;
         }
+       
         if (hDist < localMax)
             hDist = localMax;
     }
+    // if(hDist == 0){
+    //     cout<< hDist <<"!" << F1.size() << "~~" << F2.size() << endl;
+    //     exit(1);
+    // }
     return hDist;
+}
+
+
+/*
+    Gets an edge, finds hot area, collpases is, and counts the worth of the collapse
+*/
+double ObjectHandler::collapseValue(Edge *e){
+    list<Face*> oldSceme = getHotArea(e);
+    list<Face*> newSceme;
+
+    float nx, ny, nz;
+    nx = (e->vStart->x + e->vEnd->x)/2;
+    ny = (e->vStart->y + e->vEnd->y)/2;
+    nz = (e->vStart->z + e->vEnd->z)/2;
+    Vertice *vn = new Vertice(nx,ny, nz);
+
+    list<Face*>::iterator fit;
+    for (fit=oldSceme.begin(); fit!=oldSceme.end(); fit++){
+        if((*fit)->containsVertice(e->vStart) && (*fit)->containsVertice(e->vEnd)){
+            continue; //ingore them 
+        }
+            
+        Face *nf;
+        if((*fit)->v1->equalVertice(e->vStart) || (*fit)->v1->equalVertice(e->vEnd))
+            nf = new Face(vn, (*fit)->v2, (*fit)->v3);
+        if((*fit)->v2->equalVertice(e->vStart) || (*fit)->v2->equalVertice(e->vEnd))
+            nf = new Face((*fit)->v1, vn, (*fit)->v3);
+        if((*fit)->v3->equalVertice(e->vStart) || (*fit)->v3->equalVertice(e->vEnd))
+            nf = new Face((*fit)->v1, (*fit)->v2, vn);
+
+        newSceme.push_back(nf);
+    } 
+
+    double distance = HausdorffDistance(oldSceme, newSceme);
+    // cout << "old: " << oldSceme.size() << " new:: " << newSceme.size() << " Distance :: " << distance << endl;
+    cleanF(oldSceme);
+    cleanF(newSceme);
+    delete(vn);
+    return distance;
 }

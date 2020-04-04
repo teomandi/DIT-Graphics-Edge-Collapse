@@ -4,6 +4,9 @@
 
 using namespace std;
 
+/*
+    Reads the lines of a file
+*/ 
 int readFile(string path){
     cout << "NEW HELPER"<<endl;
     ifstream in(path);
@@ -20,6 +23,9 @@ int readFile(string path){
     return 0;
 }
 
+/*
+    Gets the maximun double number between 3 numbers
+*/
 double maxDouble(double d1, double d2, double d3){
      if( d1 > d2 ){
         if(d1 > d3)

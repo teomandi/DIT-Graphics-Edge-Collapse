@@ -44,5 +44,5 @@ class Face{
         double maxDistanceFromVertice(Vertice *v);
 };
 
-void clean(list<Face*> target);
+void cleanF(list<Face*> target);
 #endif
