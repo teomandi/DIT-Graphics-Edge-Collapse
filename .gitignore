@@ -4,6 +4,6 @@ finalObj/
 
 *.obj
 *.o
-
+*.zip
 a.out
 edgeCollapse
